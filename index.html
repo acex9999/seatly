@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Wedding Seating Chart Maker — Drag & Drop | Seatly</title>
+<meta name="description" content="Seatly is a free wedding seating chart maker with drag-and-drop tables, guest search, autosave, and a one-time export unlock for print-ready PDF, PNG, and find-your-seat lists.">
+<meta property="og:title" content="Seatly — Free Wedding Seating Chart Maker">
+<meta property="og:description" content="Plan wedding tables free, then unlock crisp PDF, PNG, and alphabetical find-your-seat exports for $12 USD one-time.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/assets/og-image.png">
+<meta property="og:site_name" content="Seatly">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Seatly",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Web",
+      "description": "Free wedding seating chart maker with drag-and-drop tables, autosave, and print-ready exports.",
+      "offers": {
+        "@type": "Offer",
+        "price": "12",
+        "priceCurrency": "USD",
+        "description": "$12 USD one-time export unlock"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is Seatly free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. You can build and edit your wedding seating chart for free. Exporting the print-ready files requires a one-time $12 USD unlock."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I make a seating plan without an account?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Seatly saves your chart in your browser and unlocks exports with a license key, so no login is required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What files can I download?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "After unlocking, Seatly downloads a print-ready PDF, a shareable PNG image, and an alphabetical find-your-seat guest list."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --ink:#1c2b3a;
+    --ink-soft:#41566b;
+    --blush:#e8c9c1;
+    --blush-deep:#c98a7e;
+    --paper:#faf6f1;
+    --paper-2:#f1e9e0;
+    --line:#ddd0c4;
+    --gold:#b08d57;
+    --seat-empty:#efe6da;
+    --ok:#3f7d5a;
+    --danger:#a8453b;
+    --radius:12px;
+    --shadow:0 10px 30px rgba(40,30,25,.10);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #fff 0%, transparent 60%),
+      var(--paper);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{display:grid;grid-template-columns:340px minmax(0,1fr);min-height:100vh}
+  .panel{
+    background:linear-gradient(180deg,#fff,var(--paper));
+    border-right:1px solid var(--line);
+    padding:22px 20px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    position:sticky;
+    top:0;
+    height:100vh;
+  }
+  .brand{display:flex;align-items:baseline;gap:9px}
+  .brand h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:27px;
+    margin:0;
+  }
+  .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--blush-deep);display:inline-block;margin-bottom:3px}
+  .tagline{font-size:12.5px;color:var(--ink-soft);margin:4px 0 0}
+  .block{display:flex;flex-direction:column;gap:9px}
+  .block label,.mini-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    color:var(--ink-soft);
+    font-weight:700;
+  }
+  .field{display:flex;gap:8px}
+  input[type=text],textarea,select{
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:9px;
+    padding:10px 11px;
+    width:100%;
+    outline:none;
+    transition:border-color .15s,box-shadow .15s;
+  }
+  textarea{resize:vertical;min-height:82px;line-height:1.45}
+  input[type=text]:focus,textarea:focus,select:focus{border-color:var(--blush-deep);box-shadow:0 0 0 3px rgba(201,138,126,.15)}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:9px;font-weight:700;transition:transform .08s,filter .15s,background .15s,color .15s}
+  button:active{transform:translateY(1px)}
+  button:disabled{cursor:not-allowed;opacity:.65}
+  .btn{background:var(--ink);color:#fff;padding:10px 14px;font-size:14px;white-space:nowrap}
+  .btn:hover{filter:brightness(1.12)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line);padding:9px 12px;font-size:13px}
+  .btn-ghost:hover{background:var(--paper-2)}
+  .btn-danger{color:var(--danger)}
+  .btn-wide{width:100%}
+  .guests-head{display:flex;justify-content:space-between;align-items:center}
+  .count-pill{font-size:11px;background:var(--paper-2);color:var(--ink-soft);border-radius:20px;padding:3px 9px;font-weight:700}
+  .pool{display:flex;flex-wrap:wrap;gap:7px;min-height:52px;padding:10px;border:1px dashed var(--line);border-radius:11px;background:rgba(255,255,255,.5)}
+  .pool.empty::before{content:'Add guests, then drag or tap them to a seat';color:var(--ink-soft);font-size:12.5px;opacity:.8}
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    max-width:100%;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:6px 11px;
+    font-size:13px;
+    cursor:grab;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .chip span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip:hover,.chip.selected{border-color:var(--blush-deep)}
+  .chip.match,.seat.match{outline:3px solid rgba(176,141,87,.35);outline-offset:2px}
+  .chip.dragging{opacity:.45;cursor:grabbing}
+  .chip .x{color:var(--ink-soft);font-weight:700;font-size:13px;line-height:1;padding:0 1px}
+  .chip .x:hover{color:var(--blush-deep)}
+  .tap-status{
+    min-height:36px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    background:rgba(255,255,255,.55);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 10px;
+  }
+  .actions{margin-top:auto;display:flex;flex-direction:column;gap:9px}
+  .btn-export{background:linear-gradient(180deg,var(--blush-deep),#b87a6e);color:#fff;padding:13px;font-size:14.5px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .hint{font-size:11.5px;color:var(--ink-soft);text-align:center;margin:0}
+  .status{font-size:12.5px;color:var(--ink-soft);line-height:1.4;min-height:18px}
+  .status.ok{color:var(--ok)}
+  .status.bad{color:var(--danger)}
+
+  .canvas-wrap{position:relative;overflow:auto;padding:30px}
+  #exportArea{width:100%}
+  .canvas-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+  .canvas-title{font-family:'Fraunces',serif;font-size:22px;font-weight:500}
+  .canvas-title span{color:var(--blush-deep)}
+  .legend{font-size:12px;color:var(--ink-soft)}
+  .tables{display:flex;flex-wrap:wrap;gap:34px;align-content:flex-start}
+  .table-card{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:230px}
+  .table-toolbar{display:flex;align-items:center;justify-content:center;gap:7px;min-height:32px;flex-wrap:wrap}
+  .table-name{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    background:transparent;
+    padding:5px 7px;
+  }
+  .table-name:hover{color:var(--blush-deep);background:#fff}
+  .seat-select{width:auto;min-width:70px;padding:6px 8px;font-size:12px}
+  .icon-btn{
+    width:30px;
+    height:30px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    background:#fff;
+    color:var(--ink-soft);
+    border:1px solid var(--line);
+    padding:0;
+  }
+  .icon-btn:hover{color:var(--danger);border-color:var(--blush-deep)}
+  .round{
+    position:relative;
+    width:230px;
+    height:230px;
+    border-radius:50%;
+    background:radial-gradient(circle at 50% 42%,#fff,var(--paper-2));
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+  }
+  .round .core{
+    position:absolute;
+    inset:64px;
+    border-radius:50%;
+    border:1px dashed var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-family:'Fraunces',serif;
+    font-size:15px;
+    color:var(--ink-soft);
+    padding:8px;
+    overflow:hidden;
+  }
+  .seat{
+    position:absolute;
+    width:54px;
+    height:54px;
+    margin:-27px 0 0 -27px;
+    border-radius:50%;
+    background:var(--seat-empty);
+    border:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:10.5px;
+    line-height:1.1;
+    color:var(--ink);
+    padding:3px;
+    overflow:hidden;
+    transition:background .15s,border-color .15s,transform .1s;
+  }
+  .seat.filled{background:#fff;border-color:var(--blush);box-shadow:0 2px 7px rgba(40,30,25,.10);font-weight:500;cursor:grab}
+  .seat.filled .nm{font-family:'Fraunces',serif;font-size:11px}
+  .seat.selected{border-color:var(--blush-deep);box-shadow:0 0 0 4px rgba(201,138,126,.18)}
+  .seat.over{background:var(--blush);border-color:var(--blush-deep);transform:scale(1.08)}
+  .seat .seatnum{position:absolute;font-size:8px;color:var(--ink-soft);opacity:.5}
+  .add-table{
+    width:230px;
+    height:230px;
+    border-radius:50%;
+    border:1.5px dashed var(--line);
+    background:transparent;
+    color:var(--ink-soft);
+    font-size:14px;
+    font-weight:700;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+  }
+  .add-table:hover{border-color:var(--blush-deep);color:var(--blush-deep);background:rgba(255,255,255,.4)}
+  .add-table .plus{font-size:30px;font-weight:400;line-height:1}
+
+  .overlay{position:fixed;inset:0;background:rgba(28,43,58,.46);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+  .overlay.show{display:flex}
+  .modal{background:var(--paper);border-radius:18px;max-width:460px;width:100%;padding:30px;box-shadow:0 24px 60px rgba(20,15,12,.3);text-align:center;animation:pop .25s ease}
+  @keyframes pop{from{transform:translateY(12px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+  .modal .seal{width:54px;height:54px;border-radius:50%;background:linear-gradient(180deg,var(--blush),var(--blush-deep));margin:0 auto 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-size:24px}
+  .modal h2{font-family:'Fraunces',serif;font-weight:600;font-size:24px;margin:0 0 8px}
+  .modal p{color:var(--ink-soft);font-size:14.5px;line-height:1.55;margin:0 0 18px}
+  .price{font-family:'Fraunces',serif;font-size:34px;color:var(--ink)}
+  .price small{font-size:14px;color:var(--ink-soft);font-family:'Inter'}
+  .perks{text-align:left;margin:18px 0 22px;display:flex;flex-direction:column;gap:9px}
+  .perk{display:flex;gap:9px;font-size:13.5px;color:var(--ink)}
+  .perk .c{color:var(--ok);font-weight:700}
+  .btn-buy{background:var(--ink);color:#fff;width:100%;padding:14px;font-size:15px}
+  .modal-grid{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
+  .export-options{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin:18px 0 10px;text-align:left}
+  .modal .close{margin-top:12px;font-size:13px;color:var(--ink-soft);background:none;cursor:pointer}
+  .modal .close:hover{color:var(--ink)}
+  [hidden]{display:none!important}
+
+  .seo-section{
+    border-top:1px solid var(--line);
+    background:#fff;
+    padding:42px 24px 52px;
+  }
+  .seo-inner{max-width:980px;margin:0 auto;display:grid;grid-template-columns:1.1fr .9fr;gap:34px}
+  .seo-section h2,.seo-section h3{font-family:'Fraunces',serif;font-weight:600;margin:0 0 12px}
+  .seo-section p,.seo-section li{color:var(--ink-soft);line-height:1.65;font-size:14.5px}
+  .seo-section details{border-top:1px solid var(--line);padding:14px 0}
+  .seo-section summary{cursor:pointer;font-weight:700}
+
+  body.export-mode{background:var(--paper)}
+  body.export-mode .panel,
+  body.export-mode .table-toolbar,
+  body.export-mode .add-table,
+  body.export-mode .seo-section{display:none!important}
+  body.export-mode .wrap{display:block;min-height:auto}
+  body.export-mode .canvas-wrap{padding:28px;overflow:visible}
+  body.export-mode #exportArea{background:var(--paper);padding:8px}
+  body.export-mode .tables{gap:30px}
+  body.export-mode .canvas-head{justify-content:center;text-align:center;margin-bottom:22px}
+  body.export-mode .legend{width:100%;text-align:center}
+  body.export-mode .seat{outline:none}
+
+  @media (max-width:880px){
+    .wrap{grid-template-columns:1fr}
+    .panel{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+    .canvas-wrap{padding:22px 14px}
+    .tables{justify-content:center;gap:26px}
+    .seo-inner{grid-template-columns:1fr}
+  }
+  @media (max-width:420px){
+    .field,.modal-grid,.export-options{grid-template-columns:1fr;display:grid}
+    .modal{padding:24px 18px}
+    .round,.add-table{width:220px;height:220px}
+    .table-card{min-width:220px}
+    .round .core{inset:62px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside class="panel">
+    <div>
+      <div class="brand"><span class="dot"></span><h1>Seatly</h1></div>
+      <p class="tagline">Drag-and-drop wedding seating, done in minutes.</p>
+    </div>
+
+    <div class="block">
+      <label for="guestInput">Add a guest</label>
+      <div class="field">
+        <input type="text" id="guestInput" placeholder="e.g. Aunt Marie" autocomplete="off">
+        <button class="btn" id="addGuest">Add</button>
+      </div>
+    </div>
+
+    <div class="block">
+      <label for="bulkGuests">Bulk add guests</label>
+      <textarea id="bulkGuests" placeholder="Paste names, one per line or comma separated"></textarea>
+      <button class="btn-ghost btn-wide" id="addBulkGuests">Add pasted names</button>
+    </div>
+
+    <div class="block">
+      <label for="searchInput">Search guest</label>
+      <input type="text" id="searchInput" placeholder="Type a name to highlight a seat" autocomplete="off">
+    </div>
+
+    <div class="tap-status" id="tapStatus">
+      <span>Tap a guest, then tap a seat.</span>
+      <button class="btn-ghost" id="clearSelection" hidden>Clear</button>
+    </div>
+
+    <div class="block">
+      <div class="guests-head">
+        <label>Not seated yet</label>
+        <span class="count-pill" id="poolCount">0</span>
+      </div>
+      <div class="pool empty" id="pool"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-ghost" id="addTableBtn">+ Add a table</button>
+      <button class="btn-ghost btn-danger" id="resetBtn">Start over</button>
+      <button class="btn-export" id="exportBtn">Download exports</button>
+      <p class="hint">Plan free. Pay once to download.</p>
+      <div class="status" id="appStatus"></div>
+    </div>
+  </aside>
+
+  <main class="canvas-wrap">
+    <div id="exportArea">
+      <div class="canvas-head">
+        <div class="canvas-title">The <span>Seating</span> Plan</div>
+        <div class="legend" id="legend">0 guests · 0 tables · 0 seated</div>
+      </div>
+      <div class="tables" id="tables"></div>
+    </div>
+  </main>
+</div>
+
+<section class="seo-section">
+  <div class="seo-inner">
+    <div>
+      <h2>Free wedding seating chart maker</h2>
+      <p>Seatly helps you arrange wedding tables without spreadsheets, sticky notes, or a complicated seating plan template. Add your guest list, create round tables, drag people into seats, and search names instantly when plans change.</p>
+      <p>Use it as a simple table planner while you decide how to arrange wedding tables for family groups, friends, and plus-ones. Your work autosaves in this browser, and when the plan is ready you can unlock print-ready exports for the welcome table.</p>
+    </div>
+    <div>
+      <h3>FAQ</h3>
+      <details>
+        <summary>How do I arrange wedding tables?</summary>
+        <p>Start with family and wedding-party tables, then seat friend groups together. Leave flexible seats for late changes and use search to find each guest quickly.</p>
+      </details>
+      <details>
+        <summary>Can I use Seatly as a seating plan template?</summary>
+        <p>Yes. Add tables, choose 6, 8, 10, or 12 seats, rename tables, and export the final chart when it is ready.</p>
+      </details>
+      <details>
+        <summary>What does the export unlock include?</summary>
+        <p>The one-time unlock downloads a print-ready PDF, a shareable PNG, and an alphabetical find-your-seat list.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="seal">S</div>
+    <div id="lockedPane">
+      <h2>Your chart is ready</h2>
+      <p>Unlock crisp downloads for your welcome table: print-ready PDF, shareable image, and alphabetical guest list.</p>
+      <div class="price">$12 <small>USD one-time</small></div>
+      <div class="perks">
+        <div class="perk"><span class="c">✓</span> High-resolution PDF for A3 or A2 printing</div>
+        <div class="perk"><span class="c">✓</span> Shareable PNG for your group chat</div>
+        <div class="perk"><span class="c">✓</span> Alphabetical "find your seat" guest list</div>
+        <div class="perk"><span class="c">✓</span> Unlimited edits and re-downloads</div>
+      </div>
+      <button class="btn-buy" id="buyBtn">Unlock $12</button>
+      <div class="modal-grid">
+        <input type="text" id="licenseInput" placeholder="Paste license key after purchase" autocomplete="off">
+        <button class="btn" id="verifyBtn">Unlock</button>
+      </div>
+      <div class="status" id="licenseStatus"></div>
+    </div>
+
+    <div id="unlockedPane" hidden>
+      <h2>Exports unlocked</h2>
+      <p>Download your finished seating chart. You can keep editing and re-download anytime in this browser.</p>
+      <div class="export-options">
+        <label class="mini-label" for="pdfSize">PDF size</label>
+        <select id="pdfSize">
+          <option value="a3">A3</option>
+          <option value="a2">A2</option>
+        </select>
+      </div>
+      <button class="btn-buy" id="downloadAllBtn">Download PDF + PNG + list</button>
+      <div class="status" id="exportStatus"></div>
+    </div>
+
+    <button class="close" id="closeModal">Keep editing</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  // 这些常量是产品真实参数；Payhip API key 只放 Cloudflare 环境变量，前端不能出现。
+  const PAYHIP_URL = 'https://payhip.com/b/wKSXy';
+  const STORAGE_KEY = 'seatly:v1';
+  const DEFAULT_SEATS = 8;
+  const SEAT_OPTIONS = [6, 8, 10, 12];
+
+  let guests = [];
+  let tables = [];
+  let gid = 1;
+  let tid = 1;
+  let dragId = null;
+  let selectedGuestId = null;
+  let searchTerm = '';
+  let unlocked = false;
+
+  const $ = s => document.querySelector(s);
+  const pool = $('#pool');
+  const tablesEl = $('#tables');
+  const collator = new Intl.Collator(undefined, {sensitivity:'base'});
+
+  // 读取浏览器本地保存；没有旧数据时放入一组示例，避免首屏空白。
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw){ seedState(); return; }
+      const saved = JSON.parse(raw);
+      guests = Array.isArray(saved.guests) ? saved.guests : [];
+      tables = Array.isArray(saved.tables) ? saved.tables : [];
+      gid = Number(saved.gid) || nextId(guests);
+      tid = Number(saved.tid) || nextId(tables);
+      unlocked = saved.unlocked === true;
+      sanitizeState();
+      if(tables.length === 0) tables.push({id:tid++, name:'Table 1', seats:DEFAULT_SEATS});
+    }catch{
+      seedState();
+    }
+  }
+
+  function seedState(){
+    guests = ['Aunt Marie','James & Priya','Grandpa Lou','Sofia Reyes','The Chens','Daniel K.','Mr. & Mrs. Webb','Tomas'].map((name, idx) => ({id:idx + 1, name, seat:null}));
+    tables = [{id:1, name:'Table 1', seats:DEFAULT_SEATS}];
+    gid = guests.length + 1;
+    tid = 2;
+    unlocked = false;
+  }
+
+  function sanitizeState(){
+    const tableIds = new Set(tables.map(t => t.id));
+    tables = tables.map((t, idx) => ({
+      id:Number(t.id) || idx + 1,
+      name:String(t.name || `Table ${idx + 1}`),
+      seats:SEAT_OPTIONS.includes(Number(t.seats)) ? Number(t.seats) : DEFAULT_SEATS
+    }));
+    guests = guests.map((g, idx) => {
+      const seat = g.seat && tableIds.has(g.seat.table) ? {table:g.seat.table, idx:Number(g.seat.idx)} : null;
+      const table = seat ? tables.find(t => t.id === seat.table) : null;
+      return {
+        id:Number(g.id) || idx + 1,
+        name:String(g.name || '').trim() || `Guest ${idx + 1}`,
+        seat:table && seat.idx >= 0 && seat.idx < table.seats ? seat : null
+      };
+    });
+  }
+
+  // 每次改动后保存 guests/tables/unlocked，刷新页面不会丢排座进度。
+  function saveState(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({guests, tables, gid, tid, unlocked}));
+    }catch{
+      setStatus('Your browser blocked autosave. Downloads still work during this session.', 'bad');
+    }
+  }
+
+  function nextId(items){
+    return items.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1;
+  }
+
+  // 单个输入和批量粘贴最后都会走这里，保持客人数据格式一致。
+  function addGuest(name, shouldRender = true){
+    const clean = String(name || '').trim();
+    if(!clean) return false;
+    guests.push({id:gid++, name:clean, seat:null});
+    if(shouldRender) render();
+    return true;
+  }
+
+  function addBulkGuests(){
+    const names = splitGuestNames($('#bulkGuests').value);
+    names.forEach(name => addGuest(name, false));
+    $('#bulkGuests').value = '';
+    setStatus(names.length ? `Added ${names.length} guest${names.length === 1 ? '' : 's'}.` : 'Paste at least one name first.', names.length ? 'ok' : 'bad');
+    render();
+  }
+
+  function splitGuestNames(text){
+    return String(text || '').split(/[\n,]+/).map(name => name.trim()).filter(Boolean);
+  }
+
+  function removeGuest(id){
+    guests = guests.filter(g => g.id !== id);
+    if(selectedGuestId === id) selectedGuestId = null;
+    render();
+  }
+
+  function addTable(){
+    tables.push({id:tid, name:`Table ${tid}`, seats:DEFAULT_SEATS});
+    tid++;
+    render();
+  }
+
+  function renameTable(id){
+    const table = tables.find(t => t.id === id);
+    if(!table) return;
+    const next = prompt('Table name', table.name);
+    if(next === null) return;
+    const clean = next.trim();
+    if(clean) table.name = clean;
+    render();
+  }
+
+  // 改座位数时，超出新座位数量的人退回客人池。
+  function setTableSeats(id, seats){
+    const table = tables.find(t => t.id === id);
+    if(!table) return;
+    table.seats = Number(seats);
+    guests.forEach(g => {
+      if(g.seat && g.seat.table === id && g.seat.idx >= table.seats) g.seat = null;
+    });
+    render();
+  }
+
+  function deleteTable(id){
+    const table = tables.find(t => t.id === id);
+    if(!table) return;
+    if(!confirm(`Delete ${table.name}? Guests at this table will return to the pool.`)) return;
+    guests.forEach(g => {
+      if(g.seat && g.seat.table === id) g.seat = null;
+    });
+    tables = tables.filter(t => t.id !== id);
+    render();
+  }
+
+  // 落座时如果目标座位已有人，原座位的人回到客人池。
+  function seatGuest(id, table, idx){
+    const guest = guests.find(g => g.id === id);
+    const targetTable = tables.find(t => t.id === table);
+    if(!guest || !targetTable || idx < 0 || idx >= targetTable.seats) return;
+    const occupied = guests.find(g => g.seat && g.seat.table === table && g.seat.idx === idx);
+    if(occupied && occupied.id !== id) occupied.seat = null;
+    guest.seat = {table, idx};
+    selectedGuestId = null;
+    render();
+  }
+
+  function unseat(id){
+    const guest = guests.find(g => g.id === id);
+    if(guest) guest.seat = null;
+    if(selectedGuestId === id) selectedGuestId = null;
+    render();
+  }
+
+  function onDragStart(e, id){
+    dragId = id;
+    selectedGuestId = id;
+    e.dataTransfer.effectAllowed = 'move';
+    e.currentTarget.classList.add('dragging');
+  }
+
+  function onDragEnd(e){
+    e.currentTarget.classList.remove('dragging');
+    dragId = null;
+    renderTapStatus();
+  }
+
+  function getGuestAtSeat(table, idx){
+    return guests.find(g => g.seat && g.seat.table === table && g.seat.idx === idx);
+  }
+
+  function render(){
+    renderPool();
+    renderTables();
+    renderTapStatus();
+    renderLegend();
+    saveState();
+  }
+
+  function renderPool(){
+    const unseated = guests.filter(g => !g.seat);
+    pool.innerHTML = '';
+    pool.classList.toggle('empty', unseated.length === 0);
+    unseated.forEach(guest => {
+      const chip = document.createElement('div');
+      chip.className = classNames('chip', selectedGuestId === guest.id && 'selected', isMatch(guest) && 'match');
+      chip.draggable = true;
+      chip.innerHTML = `<span>${esc(guest.name)}</span><span class="x" title="Remove">×</span>`;
+      chip.addEventListener('click', () => {
+        selectedGuestId = selectedGuestId === guest.id ? null : guest.id;
+        render();
+      });
+      chip.addEventListener('dragstart', e => onDragStart(e, guest.id));
+      chip.addEventListener('dragend', onDragEnd);
+      chip.querySelector('.x').addEventListener('click', e => {
+        e.stopPropagation();
+        removeGuest(guest.id);
+      });
+      pool.appendChild(chip);
+    });
+    $('#poolCount').textContent = unseated.length;
+  }
+
+  function renderTables(){
+    tablesEl.innerHTML = '';
+    tables.forEach(table => {
+      const card = document.createElement('div');
+      card.className = 'table-card';
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'table-toolbar';
+      const nameBtn = document.createElement('button');
+      nameBtn.className = 'table-name';
+      nameBtn.type = 'button';
+      nameBtn.textContent = table.name;
+      nameBtn.title = 'Click to rename table';
+      nameBtn.addEventListener('click', () => renameTable(table.id));
+      const seatSelect = document.createElement('select');
+      seatSelect.className = 'seat-select';
+      seatSelect.title = 'Seats per table';
+      SEAT_OPTIONS.forEach(count => {
+        const opt = document.createElement('option');
+        opt.value = count;
+        opt.textContent = `${count} seats`;
+        opt.selected = count === table.seats;
+        seatSelect.appendChild(opt);
+      });
+      seatSelect.addEventListener('change', e => setTableSeats(table.id, e.target.value));
+      const del = document.createElement('button');
+      del.className = 'icon-btn';
+      del.type = 'button';
+      del.title = 'Delete table';
+      del.textContent = '×';
+      del.addEventListener('click', () => deleteTable(table.id));
+      toolbar.append(nameBtn, seatSelect, del);
+
+      const round = document.createElement('div');
+      round.className = 'round';
+      const core = document.createElement('div');
+      core.className = 'core';
+      core.textContent = compactTableName(table.name);
+      round.appendChild(core);
+
+      for(let i = 0; i < table.seats; i++){
+        round.appendChild(renderSeat(table, i));
+      }
+
+      card.append(toolbar, round);
+      tablesEl.appendChild(card);
+    });
+
+    const add = document.createElement('button');
+    add.className = 'add-table';
+    add.type = 'button';
+    add.innerHTML = '<span class="plus">+</span> Add table';
+    add.addEventListener('click', addTable);
+    tablesEl.appendChild(add);
+  }
+
+  // 手机拖拽不稳定，所以 chip/seat 都支持点击选择再点击落座。
+  function renderSeat(table, idx){
+    const angle = (idx / table.seats) * 2 * Math.PI - Math.PI / 2;
+    const radius = 100;
+    const x = 115 + radius * Math.cos(angle);
+    const y = 115 + radius * Math.sin(angle);
+    const seat = document.createElement('div');
+    const guest = getGuestAtSeat(table.id, idx);
+    seat.className = classNames('seat', guest && 'filled', guest && selectedGuestId === guest.id && 'selected', guest && isMatch(guest) && 'match');
+    seat.style.left = `${x}px`;
+    seat.style.top = `${y}px`;
+    seat.dataset.table = table.id;
+    seat.dataset.idx = idx;
+
+    if(guest){
+      seat.draggable = true;
+      seat.innerHTML = `<span class="nm">${esc(shortName(guest.name))}</span>`;
+      seat.title = `${guest.name} - double-click to unseat`;
+      seat.addEventListener('dragstart', e => onDragStart(e, guest.id));
+      seat.addEventListener('dragend', onDragEnd);
+      seat.addEventListener('dblclick', () => unseat(guest.id));
+    }else{
+      seat.innerHTML = `<span class="seatnum">${idx + 1}</span>`;
+      seat.title = 'Empty seat';
+    }
+
+    seat.addEventListener('click', () => {
+      if(selectedGuestId) seatGuest(selectedGuestId, table.id, idx);
+      else if(guest){ selectedGuestId = guest.id; render(); }
+    });
+    seat.addEventListener('dragover', e => {
+      e.preventDefault();
+      seat.classList.add('over');
+    });
+    seat.addEventListener('dragleave', () => seat.classList.remove('over'));
+    seat.addEventListener('drop', e => {
+      e.preventDefault();
+      seat.classList.remove('over');
+      if(dragId != null) seatGuest(dragId, table.id, idx);
+    });
+    return seat;
+  }
+
+  function renderLegend(){
+    const seated = guests.filter(g => g.seat).length;
+    $('#legend').textContent = `${guests.length} guests · ${tables.length} tables · ${seated} seated`;
+  }
+
+  function renderTapStatus(){
+    const status = $('#tapStatus span');
+    const clear = $('#clearSelection');
+    const guest = guests.find(g => g.id === selectedGuestId);
+    if(guest){
+      status.textContent = `Selected: ${guest.name}. Tap a seat to place them.`;
+      clear.hidden = false;
+    }else{
+      status.textContent = 'Tap a guest, then tap a seat.';
+      clear.hidden = true;
+    }
+  }
+
+  function openExportModal(){
+    if(guests.length === 0){
+      setStatus('Add at least one guest before exporting.', 'bad');
+      return;
+    }
+    $('#lockedPane').hidden = unlocked;
+    $('#unlockedPane').hidden = !unlocked;
+    $('#licenseStatus').textContent = '';
+    $('#exportStatus').textContent = '';
+    $('#overlay').classList.add('show');
+  }
+
+  // 用户付款后回到网站粘贴 license key；前端只调用自己的 /verify。
+  async function verifyLicense(){
+    const key = $('#licenseInput').value.trim();
+    if(!key){
+      setLicenseStatus('Paste your license key first.', 'bad');
+      return;
+    }
+    $('#verifyBtn').disabled = true;
+    setLicenseStatus('Checking your key...', '');
+    try{
+      const response = await fetch('/verify', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({license_key:key})
+      });
+      const data = await response.json().catch(() => ({}));
+      if(response.ok && data.valid){
+        unlocked = true;
+        saveState();
+        $('#licenseInput').value = '';
+        setLicenseStatus('Unlocked. Downloads are ready.', 'ok');
+        $('#lockedPane').hidden = true;
+        $('#unlockedPane').hidden = false;
+      }else{
+        setLicenseStatus(data.message || 'Key invalid, please check or contact support.', 'bad');
+      }
+    }catch{
+      setLicenseStatus('Could not reach the license server. Please try again in a moment.', 'bad');
+    }finally{
+      $('#verifyBtn').disabled = false;
+    }
+  }
+
+  // 导出前打开 export-mode，只保留干净的座位图，避免把按钮一起截进文件。
+  async function downloadExports(){
+    if(!unlocked){ openExportModal(); return; }
+    if(!window.html2canvas || !window.jspdf){
+      setExportStatus('Export tools are still loading. Please try again in a few seconds.', 'bad');
+      return;
+    }
+    $('#downloadAllBtn').disabled = true;
+    setExportStatus('Preparing clean print files...', '');
+    document.body.classList.add('export-mode');
+    try{
+      if(document.fonts) await document.fonts.ready;
+      await nextPaint();
+      const canvas = await html2canvas($('#exportArea'), {
+        scale:Math.min(3, Math.max(2, window.devicePixelRatio || 1)),
+        backgroundColor:'#faf6f1',
+        useCORS:true,
+        logging:false
+      });
+      downloadDataUrl(canvas.toDataURL('image/png'), 'seatly-share-image.png');
+      await createPdf(canvas);
+      downloadGuestList();
+      setExportStatus('Downloaded PDF, PNG, and guest list.', 'ok');
+    }catch(error){
+      console.error(error);
+      setExportStatus('Export failed. Please try again or use a smaller chart.', 'bad');
+    }finally{
+      document.body.classList.remove('export-mode');
+      $('#downloadAllBtn').disabled = false;
+    }
+  }
+
+  async function createPdf(canvas){
+    const {jsPDF} = window.jspdf;
+    const format = $('#pdfSize').value || 'a3';
+    const pdf = new jsPDF({orientation:'landscape', unit:'mm', format});
+    addCanvasPage(pdf, canvas);
+    addGuestListPages(pdf, format);
+    pdf.save('seatly-print-ready-seating-chart.pdf');
+  }
+
+  function addCanvasPage(pdf, canvas){
+    const img = canvas.toDataURL('image/png');
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+    const maxW = pageW - margin * 2;
+    const maxH = pageH - margin * 2;
+    const ratio = Math.min(maxW / canvas.width, maxH / canvas.height);
+    const w = canvas.width * ratio;
+    const h = canvas.height * ratio;
+    pdf.addImage(img, 'PNG', (pageW - w) / 2, (pageH - h) / 2, w, h, undefined, 'FAST');
+  }
+
+  function addGuestListPages(pdf, format){
+    pdf.addPage(format, 'portrait');
+    const rows = sortedGuestRows();
+    const margin = 18;
+    const lineH = 7;
+    let pageW = pdf.internal.pageSize.getWidth();
+    let pageH = pdf.internal.pageSize.getHeight();
+    let y = drawGuestListHeader(pdf, pageW, margin);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(11);
+    rows.forEach(row => {
+      if(y > pageH - margin){
+        pdf.addPage(format, 'portrait');
+        pageW = pdf.internal.pageSize.getWidth();
+        pageH = pdf.internal.pageSize.getHeight();
+        y = drawGuestListHeader(pdf, pageW, margin);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(11);
+      }
+      pdf.text(row.name, margin, y);
+      pdf.text(row.table, pageW * .52, y);
+      pdf.text(row.seat, pageW - margin, y, {align:'right'});
+      y += lineH;
+    });
+  }
+
+  function drawGuestListHeader(pdf, pageW, margin){
+    pdf.setTextColor(28, 43, 58);
+    pdf.setFont('times', 'bold');
+    pdf.setFontSize(24);
+    pdf.text('Find Your Seat', pageW / 2, margin + 4, {align:'center'});
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(10);
+    pdf.text('Guest', margin, margin + 20);
+    pdf.text('Table', pageW * .52, margin + 20);
+    pdf.text('Seat', pageW - margin, margin + 20, {align:'right'});
+    pdf.setDrawColor(221, 208, 196);
+    pdf.line(margin, margin + 24, pageW - margin, margin + 24);
+    return margin + 33;
+  }
+
+  function downloadGuestList(){
+    const header = 'Guest,Table,Seat\n';
+    const csv = header + sortedGuestRows().map(row => [row.name, row.table, row.seat].map(csvCell).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    downloadBlob(blob, 'seatly-find-your-seat-list.csv');
+  }
+
+  function sortedGuestRows(){
+    return guests
+      .slice()
+      .sort((a, b) => collator.compare(a.name, b.name))
+      .map(guest => {
+        const table = guest.seat ? tables.find(t => t.id === guest.seat.table) : null;
+        return {
+          name:guest.name,
+          table:table ? table.name : 'Not seated yet',
+          seat:guest.seat ? String(guest.seat.idx + 1) : ''
+        };
+      });
+  }
+
+  function resetAll(){
+    if(!confirm('Start over and clear all guests and tables? Your export unlock will stay saved.')) return;
+    guests = [];
+    tables = [{id:1, name:'Table 1', seats:DEFAULT_SEATS}];
+    gid = 1;
+    tid = 2;
+    selectedGuestId = null;
+    searchTerm = '';
+    $('#searchInput').value = '';
+    render();
+    setStatus('Cleared. Start a fresh seating plan.', 'ok');
+  }
+
+  function isMatch(guest){
+    return searchTerm && guest.name.toLowerCase().includes(searchTerm);
+  }
+
+  function shortName(name){
+    return name.length > 12 ? name.split(/\s+/)[0] : name;
+  }
+
+  function compactTableName(name){
+    return name.length > 16 ? name.slice(0, 14) + '...' : name;
+  }
+
+  function classNames(...items){
+    return items.filter(Boolean).join(' ');
+  }
+
+  function esc(text){
+    return String(text).replace(/[&<>"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]));
+  }
+
+  function csvCell(text){
+    const value = String(text ?? '');
+    return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+  }
+
+  function setStatus(message, type = ''){
+    const el = $('#appStatus');
+    el.textContent = message;
+    el.className = `status ${type}`.trim();
+  }
+
+  function setLicenseStatus(message, type = ''){
+    const el = $('#licenseStatus');
+    el.textContent = message;
+    el.className = `status ${type}`.trim();
+  }
+
+  function setExportStatus(message, type = ''){
+    const el = $('#exportStatus');
+    el.textContent = message;
+    el.className = `status ${type}`.trim();
+  }
+
+  function downloadDataUrl(dataUrl, filename){
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    downloadDataUrl(url, filename);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function nextPaint(){
+    return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  }
+
+  $('#addGuest').addEventListener('click', () => {
+    if(addGuest($('#guestInput').value)){
+      $('#guestInput').value = '';
+      $('#guestInput').focus();
+    }
+  });
+  $('#guestInput').addEventListener('keydown', e => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      if(addGuest(e.target.value)) e.target.value = '';
+    }
+  });
+  $('#addBulkGuests').addEventListener('click', addBulkGuests);
+  $('#addTableBtn').addEventListener('click', addTable);
+  $('#resetBtn').addEventListener('click', resetAll);
+  $('#searchInput').addEventListener('input', e => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    render();
+  });
+  $('#clearSelection').addEventListener('click', () => {
+    selectedGuestId = null;
+    render();
+  });
+  $('#exportBtn').addEventListener('click', openExportModal);
+  $('#buyBtn').addEventListener('click', () => window.open(PAYHIP_URL, '_blank', 'noopener'));
+  $('#verifyBtn').addEventListener('click', verifyLicense);
+  $('#licenseInput').addEventListener('keydown', e => {
+    if(e.key === 'Enter') verifyLicense();
+  });
+  $('#downloadAllBtn').addEventListener('click', downloadExports);
+  $('#closeModal').addEventListener('click', () => $('#overlay').classList.remove('show'));
+  $('#overlay').addEventListener('click', e => {
+    if(e.target.id === 'overlay') $('#overlay').classList.remove('show');
+  });
+
+  loadState();
+  render();
+})();
+</script>
+</body>
+</html>
