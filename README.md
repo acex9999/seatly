@@ -59,10 +59,15 @@ PAYHIP_PRODUCT_SECRET_KEY
 
 ## 怎么重新部署
 
-1. 把这个仓库推送到连接 Cloudflare Pages 的 GitHub 仓库。
-2. Cloudflare Pages 会自动开始部署。
-3. 如果没有自动部署，进入 Cloudflare Pages 项目，点 Deployments，再点 Retry deployment。
-4. 部署完成后，打开线上网址测试：
+当前项目可以用 Wrangler 直接部署到 Cloudflare Pages：
+
+```bash
+npx wrangler pages deploy . --project-name seatly --branch main
+```
+
+如果以后把 Cloudflare Pages 连接到 GitHub 仓库，也可以改成 GitHub 自动部署。
+
+部署完成后，打开线上网址测试：
    - 添加客人
    - 添加桌子
    - 刷新页面确认没有丢数据
