@@ -37,6 +37,9 @@ export async function onRequest({request, env}) {
       signal:controller.signal
     });
     const data = await parseJson(response);
+    if(!response.ok && response.status < 500) {
+      return json({valid:false, message:'Key invalid, please check or contact support.'});
+    }
     if(!response.ok) return json({valid:false, message:'Payhip could not verify this key. Please try again.'}, 502);
 
     const license = data && data.data ? data.data : data;
