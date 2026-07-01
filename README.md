@@ -39,7 +39,7 @@ const PRODUCT_LINK = 'wKSXy';
 
 把 `wKSXy` 改成新 Payhip 商品链接最后那段 permalink。比如新链接是 `https://payhip.com/b/ABCDE`，这里就填 `ABCDE`。
 
-## Cloudflare 里怎么填 PAYHIP_API_KEY
+## Cloudflare 里怎么填 PAYHIP_PRODUCT_SECRET_KEY
 
 1. 进入 Cloudflare Dashboard。
 2. 打开 Workers & Pages。
@@ -49,13 +49,13 @@ const PRODUCT_LINK = 'wKSXy';
 6. 添加变量：
 
 ```text
-PAYHIP_API_KEY
+PAYHIP_PRODUCT_SECRET_KEY
 ```
 
-7. 值填 Payhip 后台提供的 API key。
+7. 值填 Payhip 产品编辑页里 license keys 区域显示的 product secret key。
 8. 保存后重新部署一次。
 
-不要把 Payhip API key 写进 `index.html` 或任何公开文件。
+不要把 Payhip product secret key 写进 `index.html` 或任何公开文件。
 
 ## 怎么重新部署
 

@@ -1,12 +1,14 @@
 const PRODUCT_LINK = 'wKSXy';
-const VERIFY_URL = 'https://payhip.com/api/v1/license/verify';
+const VERIFY_V2_URL = 'https://payhip.com/api/v2/license/verify';
+const VERIFY_V1_URL = 'https://payhip.com/api/v1/license/verify';
 
 export async function onRequest({request, env}) {
   if(request.method === 'OPTIONS') return json({ok:true});
   if(request.method !== 'POST') return json({valid:false, message:'Method not allowed.'}, 405);
 
-  const apiKey = env.PAYHIP_API_KEY;
-  if(!apiKey) return json({valid:false, message:'License server is not configured yet.'}, 500);
+  const productSecretKey = env.PAYHIP_PRODUCT_SECRET_KEY;
+  const legacyApiKey = env.PAYHIP_API_KEY;
+  if(!productSecretKey && !legacyApiKey) return json({valid:false, message:'License server is not configured yet.'}, 500);
 
   let body;
   try{
@@ -18,9 +20,9 @@ export async function onRequest({request, env}) {
   const licenseKey = String(body.license_key || body.licenseKey || '').trim();
   if(!licenseKey) return json({valid:false, message:'License key is required.'}, 400);
 
-  const url = new URL(VERIFY_URL);
-  url.searchParams.set('product_link', PRODUCT_LINK);
+  const url = new URL(productSecretKey ? VERIFY_V2_URL : VERIFY_V1_URL);
   url.searchParams.set('license_key', licenseKey);
+  if(!productSecretKey) url.searchParams.set('product_link', PRODUCT_LINK);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
@@ -30,7 +32,7 @@ export async function onRequest({request, env}) {
       method:'GET',
       headers:{
         'accept':'application/json',
-        'payhip-api-key':apiKey
+        ...(productSecretKey ? {'product-secret-key':productSecretKey} : {'payhip-api-key':legacyApiKey})
       },
       signal:controller.signal
     });
